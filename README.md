@@ -16,9 +16,8 @@
 2. 每个 skill 装到用户级 skill 根目录：~/.agents/skills/<名称>/
    （Windows 是 %USERPROFILE%\.agents\skills\<名称>\）
 3. 整个 skill 目录一起装（含 references/、agents/），不要只拷 SKILL.md，不要再套一层目录
-4. 优先直接运行仓库自带的 install.ps1（Windows）或 install.sh（macOS/Linux，可加 --link 建软链）
-5. 装完逐个确认 <根目录>/<名称>/SKILL.md 存在，报告：发现几个、装了几个、跳过几个
-6. 全部做完再回我一句话总结，不要边装边问
+4. 装完逐个确认 <根目录>/<名称>/SKILL.md 存在，报告：发现几个、装了几个、跳过几个
+5. 全部做完再回我一句话总结，不要边装边问
 ```
 
 这段提示词对**以后新增的 skill 同样有效**：AI 靠 `skills/*/*/SKILL.md` 自动枚举，不需要你更新名单。仓库里现在有 1 个 skill，将来有 10 个，同一个提示词照样能用。
@@ -34,25 +33,29 @@ AI 需要知道的三条硬规则（也是它最容易装错的地方）：
 ## 手动安装
 
 ```powershell
-# Windows：整仓复制到临时目录后跑安装脚本
+# Windows
 git clone git@github.com:siqyka/skills.git
-cd skills
-powershell -ExecutionPolicy Bypass -File install.ps1        # 复制到 %USERPROFILE%\.agents\skills
-powershell -ExecutionPolicy Bypass -File install.ps1 -Link  # 软链（需开发者模式，失败自动回退复制）
+# 复制每个 skill 目录（示例：只有 session-handoff）
+xcopy /E /I "%CD%\skills\skills\productivity\session-handoff" "%USERPROFILE%\.agents\skills\session-handoff"
 ```
 
 ```bash
 # macOS / Linux
 git clone git@github.com:siqyka/skills.git
-cd skills
-./install.sh                       # 复制到 ~/.agents/skills
-./install.sh --link                # 软链：仓库即正本，改完立即生效
-./install.sh --target ~/.claude/skills   # 换目标根目录
-./install.sh --dry-run             # 只看会发生什么
-./install.sh --force               # 覆盖已存在的同名 skill
+cp -R skills/skills/productivity/session-handoff ~/.agents/skills/session-handoff
 ```
 
-脚本会自动发现 `skills/*/*/SKILL.md` 并逐个安装，**新增 skill 不用改脚本、不用改本文件**。装完会打印每个 `SKILL.md` 的实际路径供核对。
+想省掉以后每次的复制，就把目录换成软链（仓库即正本，改完立即生效）：
+
+```powershell
+mklink /D "%USERPROFILE%\.agents\skills\session-handoff" "%CD%\skills\skills\productivity\session-handoff"
+```
+
+```bash
+ln -s "$PWD/skills/skills/productivity/session-handoff" ~/.agents/skills/session-handoff
+```
+
+Windows 软链需要开发者模式或管理员权限，失败就退回复制——两条路都行，区别只是「要不要手动同步」。
 
 ## 目录约定
 
@@ -100,8 +103,8 @@ skills/
 
 ## 维护
 
-- 仓库是正本；用 `--link` / `-Link` 安装可以让仓库直接就是本地生效的那份，不会有「仓库一份、本地一份」的漂移。
-- 新增 skill：建 `skills/<分类>/<name>/`，写 `SKILL.md`，在下面表格加一行即可；安装脚本与 AI 提示词都不需要改。
+- 仓库是正本；装成软链可以让仓库直接就是本地生效的那份，不会有「仓库一份、本地一份」的漂移。
+- 新增 skill：建 `skills/<分类>/<name>/`，写 `SKILL.md`，在 Skills 表格加一行即可；上面的 AI 提示词不需要改（它按 `skills/*/*/SKILL.md` 自动发现）。
 - 提交信息用 Conventional Commits，如 `feat(session-handoff): add cleanup prompt`。
 
 ## License
