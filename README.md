@@ -2,7 +2,57 @@
 
 个人 skill 集合，按「一个目录一个 skill」组织，可直接被 DeepSeek Harness / Claude Code / Codex 等支持 `SKILL.md` 的工具加载。
 
-> A small collection of agent skills. Each skill is a directory containing a `SKILL.md` plus optional reference files.
+> A small collection of agent skills. Each skill is a directory containing a `SKILL.md`, plus optional reference files. Give an agent the repo URL and it can install everything by itself.
+
+## 让 AI 安装（只需要仓库地址）
+
+把下面这段原样丢给任何**能执行命令**的 AI：
+
+```text
+把 https://github.com/siqyka/skills 装上（私有仓库，用你有权限的凭证 clone）。
+
+安装规则：
+1. 一个 skill = 一个目录 skills/<分类>/<名称>/，判断依据是该目录里存在 SKILL.md；其余文件忽略
+2. 每个 skill 装到用户级 skill 根目录：~/.agents/skills/<名称>/
+   （Windows 是 %USERPROFILE%\.agents\skills\<名称>\）
+3. 整个 skill 目录一起装（含 references/、agents/），不要只拷 SKILL.md，不要再套一层目录
+4. 优先直接运行仓库自带的 install.ps1（Windows）或 install.sh（macOS/Linux，可加 --link 建软链）
+5. 装完逐个确认 <根目录>/<名称>/SKILL.md 存在，报告：发现几个、装了几个、跳过几个
+6. 全部做完再回我一句话总结，不要边装边问
+```
+
+这段提示词对**以后新增的 skill 同样有效**：AI 靠 `skills/*/*/SKILL.md` 自动枚举，不需要你更新名单。仓库里现在有 1 个 skill，将来有 10 个，同一个提示词照样能用。
+
+AI 需要知道的三条硬规则（也是它最容易装错的地方）：
+
+| 规则 | 装错的样子 |
+|---|---|
+| 一个 skill 一个目录，不比仓库根 | 把整个仓库塞进 skill 目录 → 扫不到 |
+| 只能一层：`<根>/<名称>/SKILL.md` | 多套一层 `<根>/<名称>/<名称>/SKILL.md` → 扫不到 |
+| 目录整体安装 | 只拷 `SKILL.md`，`references/` 丢失 → 引用断链、skill 残废 |
+
+## 手动安装
+
+```powershell
+# Windows：整仓复制到临时目录后跑安装脚本
+git clone git@github.com:siqyka/skills.git
+cd skills
+powershell -ExecutionPolicy Bypass -File install.ps1        # 复制到 %USERPROFILE%\.agents\skills
+powershell -ExecutionPolicy Bypass -File install.ps1 -Link  # 软链（需开发者模式，失败自动回退复制）
+```
+
+```bash
+# macOS / Linux
+git clone git@github.com:siqyka/skills.git
+cd skills
+./install.sh                       # 复制到 ~/.agents/skills
+./install.sh --link                # 软链：仓库即正本，改完立即生效
+./install.sh --target ~/.claude/skills   # 换目标根目录
+./install.sh --dry-run             # 只看会发生什么
+./install.sh --force               # 覆盖已存在的同名 skill
+```
+
+脚本会自动发现 `skills/*/*/SKILL.md` 并逐个安装，**新增 skill 不用改脚本、不用改本文件**。装完会打印每个 `SKILL.md` 的实际路径供核对。
 
 ## 目录约定
 
@@ -27,27 +77,6 @@ skills/
 |---|---|---|
 | [session-handoff](skills/productivity/session-handoff/SKILL.md) | productivity | 把当前会话压缩成一份可独立启动的交接文档；接手方按接收协议定向执行，并在读完文档后用选择弹窗询问清理临时文件 |
 
-## 安装
-
-复制或软链到工具的 skill 根目录。**推荐软链**，这样仓库里的改动立即生效，不会出现「仓库一份、本地一份」的漂移。
-
-**DeepSeek Harness（用户级，全局生效）**
-
-```powershell
-# Windows：软链（需要管理员或开发者模式）
-mklink /D "%USERPROFILE%\.agents\skills\session-handoff" "<仓库路径>\skills\productivity\session-handoff"
-```
-
-```bash
-# macOS / Linux
-ln -s "$PWD/skills/productivity/session-handoff" ~/.agents/skills/session-handoff
-```
-
-把 `<仓库路径>` 换成 clone 下来的位置即可。不想用软链就整目录复制到 `~/.agents/skills/<skill-name>/`——之后两边要手动保持同步。
-
-**Claude Code**：`~/.claude/skills/<skill-name>/`
-**Codex**：`~/.codex/skills/<skill-name>/`
-
 ## 使用
 
 **生成交接文档**（在当前会话里说）：
@@ -71,8 +100,8 @@ ln -s "$PWD/skills/productivity/session-handoff" ~/.agents/skills/session-handof
 
 ## 维护
 
-- 仓库是正本；本地安装用软链，或改完两边同步。
-- 新增 skill：建 `skills/<分类>/<name>/`，写 `SKILL.md`，在本文件表格加一行。
+- 仓库是正本；用 `--link` / `-Link` 安装可以让仓库直接就是本地生效的那份，不会有「仓库一份、本地一份」的漂移。
+- 新增 skill：建 `skills/<分类>/<name>/`，写 `SKILL.md`，在下面表格加一行即可；安装脚本与 AI 提示词都不需要改。
 - 提交信息用 Conventional Commits，如 `feat(session-handoff): add cleanup prompt`。
 
 ## License
