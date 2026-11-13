@@ -35,7 +35,7 @@ skills/
 
 ```powershell
 # Windows：软链（需要管理员或开发者模式）
-mklink /D "%USERPROFILE%\.agents\skills\session-handoff" "E:\GIT\skills\skills\productivity\session-handoff"
+mklink /D "%USERPROFILE%\.agents\skills\session-handoff" "<仓库路径>\skills\productivity\session-handoff"
 ```
 
 ```bash
@@ -43,7 +43,7 @@ mklink /D "%USERPROFILE%\.agents\skills\session-handoff" "E:\GIT\skills\skills\p
 ln -s "$PWD/skills/productivity/session-handoff" ~/.agents/skills/session-handoff
 ```
 
-不想用软链就整目录复制到 `~/.agents/skills/<skill-name>/`——之后两边要手动保持同步。
+把 `<仓库路径>` 换成 clone 下来的位置即可。不想用软链就整目录复制到 `~/.agents/skills/<skill-name>/`——之后两边要手动保持同步。
 
 **Claude Code**：`~/.claude/skills/<skill-name>/`
 **Codex**：`~/.codex/skills/<skill-name>/`
