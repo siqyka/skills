@@ -1,0 +1,5 @@
+interface:
+  display_name: "Session Handoff"
+  short_description: "Compact a session into a handoff document another agent can pick up"
+policy:
+  allow_implicit_invocation: true
