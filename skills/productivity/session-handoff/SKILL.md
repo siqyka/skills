@@ -1,6 +1,6 @@
 ---
 name: session-handoff
-description: 会话交接（handoff）：把当前会话压缩成一份可独立启动的交接文档，让新会话或另一个 agent 读完就能直接接手；收到带交接文档的任务时按接收协议定向执行、不重走探索。触发词：handoff、交接、会话交接、生成交接文档、读取并接手交接文档、把方案/结论写到某路径、传给下一个会话、接着之前的做；English: session handoff, write a handoff, hand off to a new session, resume from handoff, clean up handoff files。
+description: "会话交接（handoff）：把当前会话压缩成一份可独立启动的交接文档，让新会话或另一个 agent 读完就能直接接手；收到带交接文档的任务时按接收协议定向执行、不重走探索。触发词：handoff、交接、会话交接、生成交接文档、读取并接手交接文档、把方案/结论写到某路径、传给下一个会话、接着之前的做；English: session handoff, write a handoff, hand off to a new session, resume from handoff, clean up handoff files。"
 ---
 
 # 会话交接（Session Handoff）
